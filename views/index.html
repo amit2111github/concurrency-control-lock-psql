@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+	<h2>Amit</h2>
+	<table id = 'tbl'></table>
+	<script type="text/javascript">
+		const getseats = async () => {
+			try {
+				let data = await fetch("http://localhost:3000/seats");
+				data = await data.json();
+				const tbl = document.getElementById("tbl")
+				data = data.sort((a,b) => a.id - b.id);
+				let tr;
+				for (let i = 0; i < data.length; i++) {
+				    if (i % 3 === 0)
+				        tr = document.createElement("tr");
+				    
+				    const td = document.createElement("td");
+				    td.textContent = data[i].id;
+				    td.style.backgroundColor = data[i].isbooked != "false" ? "Red" : "Green";
+				    td.style.width = "50px";
+				    td.style.height = "50px";
+				    td.title = !(data[i].username)?"not boooked":data[i].username;
+				    td.addEventListener("click", async e => {
+				        try {
+				            const id = e.target.textContent;
+				            const name = prompt("Enter your name to book " + id);
+				            if(!name) {
+				            	alert("Name is required");
+				            	return;
+				            }
+				            let data = await fetch(`book/${id}/${name}`, {"method" : "PUT"});
+				            data = await data.json();
+				            if (data.error)  alert("FAILED! Couldn't book! already booked.")
+				            else alert ("Booked successfully!")
+				            e.target.style.backgroundColor = "red";
+				        }
+				        catch(ex){
+				            alert("error booking "  + ex)
+				        }
+				    } )
+				    tr.appendChild(td);
+				    tbl.appendChild(tr);
+				}
+			}
+			catch(err) {
+				alert(err);
+			}
+		}
+		getseats();
+	</script>
+</body>
+</html>
